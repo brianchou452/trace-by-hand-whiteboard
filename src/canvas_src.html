@@ -69,7 +69,17 @@ svg.layer .ahead{stroke:none;pointer-events:none}
 .txt{min-width:120px;max-width:640px;padding:6px 8px;border:1px dashed transparent;border-radius:6px;white-space:pre-wrap;line-height:1.55}
 .it.sel .txt,.txt:hover{border-color:var(--line)}
 .txt.big{font-size:20px;font-weight:900}
-.txt.code{font-family:var(--mono);font-size:13px;background:var(--surface);border:1px solid var(--line);white-space:pre}
+.txt.code{position:relative;padding:0;background:var(--surface);border:1px solid var(--line)}
+.code pre,.code textarea{margin:0;padding:6px 8px;border:0;font:400 13px/1.55 var(--mono);font-variant-ligatures:none;letter-spacing:normal;white-space:pre-wrap;overflow-wrap:break-word;tab-size:4}
+.code pre{pointer-events:none}
+.code textarea{position:absolute;inset:0;width:100%;height:100%;resize:none;overflow:hidden;background:transparent;color:transparent;caret-color:var(--ink);border-radius:inherit;outline-offset:0}
+.code textarea::placeholder{color:var(--ink-3)}
+.code textarea::selection{color:transparent;background:color-mix(in oklab,var(--marker) 30%,transparent)}
+.code .hljs-keyword,.code .hljs-selector-tag,.code .hljs-meta{color:var(--purple)}
+.code .hljs-string,.code .hljs-regexp,.code .hljs-addition{color:var(--green)}
+.code .hljs-number,.code .hljs-literal,.code .hljs-deletion{color:var(--red)}
+.code .hljs-title,.code .hljs-type,.code .hljs-built_in,.code .hljs-attr{color:var(--marker)}
+.code .hljs-comment,.code .hljs-quote{color:var(--ink-2)}
 .note{width:190px;min-height:90px;background:var(--note);color:var(--note-ink);padding:10px 12px;box-shadow:var(--shadow);white-space:pre-wrap;border-radius:2px 2px 10px 2px;line-height:1.5}
 .cells{display:flex;gap:3px;align-items:flex-end}
 .cw{display:flex;flex-direction:column;align-items:center}
@@ -171,6 +181,8 @@ svg.layer .stroke.msel{filter:drop-shadow(0 0 3px var(--marker))}
 .mt .cnt{font-size:12px;color:var(--ink-2);padding:0 6px;font-weight:700}
 /* 浮動小工具列 */
 .mt{position:absolute;z-index:6;background:var(--surface);border:1px solid var(--line);border-radius:9px;box-shadow:var(--shadow);padding:3px;display:flex;gap:2px;align-items:center;white-space:nowrap}
+.mt.dragging{visibility:hidden}
+.mt .langsel{max-width:145px}
 .mt button{border:0;background:none;border-radius:6px;padding:3px 8px;font-size:12.5px;cursor:pointer;color:var(--ink)}
 .mt button:hover{background:var(--surface-2)}
 .mt button.danger{color:var(--red)}
@@ -340,10 +352,11 @@ table.grid .ax{display:inline-block;min-width:12px;padding:0 2px;border-radius:3
       <b>形狀</b>：下方工具列的矩形 <kbd>R</kbd>、圓形 <kbd>O</kbd>、直線 <kbd>L</kbd>、箭頭 <kbd>⇧L</kbd>，拖曳畫出來，按住 <kbd>Shift</kbd> 畫正方形／正圓／45 度。點一下形狀就能選取、拖動、換顏色。<br>
       <b>圖層</b>：選取後 <kbd>⌘]</kbd> 往上一層、<kbd>⌘[</kbd> 往下一層、<kbd>⌘⌥]</kbd> 最上層、<kbd>⌘⌥[</kbd> 最下層（工具列也有 ⤒ ⤓）。<br>
       <b>標記</b>：<kbd>Shift</kbd>＋點格子＝標黃，<kbd>Alt</kbd>＋點格子＝變淡。<br>
-      <b>畫面</b>：空白鍵＋拖曳或觸控板移動；<kbd>⌘</kbd>＋滾輪縮放；<kbd>⇧1</kbd> 全部看得到、<kbd>⇧0</kbd> 100%。
+      <b>畫面</b>：按住滑鼠右鍵拖曳、空白鍵＋拖曳可移動；滾輪縮放；<kbd>⇧1</kbd> 全部看得到、<kbd>⇧0</kbd> 100%。
     </div>
   </div>
 </div>
+<script>/*HIGHLIGHT_JS*/</script>
 <script>
 (function(){
 /* ---------- 多國語系 ---------- */
@@ -463,9 +476,27 @@ function cellsHtml(it,withIdx){
   var h=it.cells.map(function(c,i){return '<div class="cw">'+XB('delCell',i)+(withIdx?'<span class="ix">'+i+'</span>':'')+'<div class="cell'+((it.hl||[]).indexOf(i)>=0?' hl':'')+((it.done||[]).indexOf(i)>=0?' done':'')+'"'+BG(it,i)+' contenteditable="true" spellcheck="false" data-c="'+i+'">'+esc(c)+'</div></div>';}).join('');
   return h+_T('<button class="addc ctl" type="button" data-act="addCell" aria-label="加一格">＋</button>')+(it.cells.length?'':_T('<span class="empty">（空的）</span>'));
 }
+var CODE_LANGUAGES=hljs.listLanguages().filter(function(lang){return lang!=='plaintext';});
+var CODE_AUTO=['bash','c','cpp','csharp','css','go','java','javascript','json','kotlin','lua','php','python','ruby','rust','sql','swift','typescript','xml','yaml'];
+function codeLanguage(it){return CODE_LANGUAGES.indexOf(it.codeLanguage)>=0||it.codeLanguage==='plaintext'?it.codeLanguage:'';}
+function paintCode(editor,it){
+  var lang=codeLanguage(it), text=editor.value, pre=editor.previousElementSibling;
+  var result=lang?hljs.highlight(text,{language:lang}):hljs.highlightAuto(text,CODE_AUTO);
+  // The extra space keeps the last line measurable, even when it is empty.
+  pre.innerHTML=result.value+' ';
+}
+function codeLanguagePicker(it){
+  var lang=codeLanguage(it);
+  var options=[['',_T('自動辨識')],['plaintext',_T('純文字')]].concat(CODE_LANGUAGES.map(function(key){return [key,hljs.getLanguage(key).name||key];}));
+  return '<select class="langsel" id="codeLang" aria-label="'+esc(_T('程式語言'))+'">'+options.map(function(option){
+    return '<option value="'+option[0]+'"'+(option[0]===lang?' selected':'')+'>'+esc(option[1])+'</option>';
+  }).join('')+'</select><span class="sep2"></span>';
+}
 function itemHtml(it){
   switch(it.type){
-    case 'text': return '<div class="txt '+it.style+'" contenteditable="true" spellcheck="false" data-f="text" data-ph="'+({big:_T('標題'),code:_T('程式碼')}[it.style]||_T('文字'))+'">'+esc(it.text)+'</div>';
+    case 'text':
+      if(it.style==='code') return _T('<div class="txt code"><pre aria-hidden="true"></pre><textarea data-f="text" spellcheck="false" autocapitalize="off" autocorrect="off" aria-label="程式碼" placeholder="程式碼"></textarea></div>');
+      return '<div class="txt '+it.style+'" contenteditable="true" spellcheck="false" data-f="text" data-ph="'+(it.style==='big'?_T('標題'):_T('文字'))+'">'+esc(it.text)+'</div>';
     case 'note': return _T('<div class="note" contenteditable="true" spellcheck="false" data-f="text" data-ph="便利貼">')+esc(it.text)+'</div>';
     case 'array': case 'string':
       return '<div class="grip">⠿ '+nameHtml(it)+'<span>'+(it.type==='string'?_T('字串'):_T('陣列'))+'</span></div><div class="cells">'+cellsHtml(it,true)+'</div>';
@@ -516,6 +547,11 @@ function renderItem(it){
   if(!el){el=document.createElement('div');el.className='it';el.dataset.id=it.id;itemsEl.appendChild(el);}
   el.style.left=it.x+'px'; el.style.top=it.y+'px'; el.style.zIndex=(it.z||0)+1;
   el.innerHTML=itemHtml(it);
+  if(it.type==='text'&&it.style==='code'){
+    var editor=el.querySelector('textarea');
+    editor.value=it.text||'';
+    paintCode(editor,it);
+  }
   el.classList.toggle('sel',sel===it.id);
   el.classList.toggle('connsrc',connSrc===it.id);
   el.classList.toggle('msel',msel.indexOf(it.id)>=0);
@@ -562,7 +598,7 @@ function renderEdges(){
     if(e._mx!=null){el.style.left=e._mx+'px';el.style.top=e._my+'px';}
   });
   [].forEach.call(L.querySelectorAll('.elabel'),function(el){if(!B.edges.some(function(e){return e.id===el.dataset.e;}))el.remove();});
-  [].forEach.call(g.querySelectorAll('[data-e]'),function(el){var hit=el.querySelector('.hit');hit.addEventListener('pointerdown',function(ev){ev.stopPropagation();ev.preventDefault();
+  [].forEach.call(g.querySelectorAll('[data-e]'),function(el){var hit=el.querySelector('.hit');hit.addEventListener('pointerdown',function(ev){if(ev.button!==0) return; ev.stopPropagation();ev.preventDefault();
       var id=el.dataset.e, now=Date.now(), dbl=edgeTap.id===id&&now-edgeTap.t<400; edgeTap={id:id,t:now};
       if(dbl){editEdgeLabel(id);return;} selEdge=id; sel=null; renderAll();});});
 }
@@ -695,6 +731,7 @@ function renderToolbar(){
   var it=sel&&byId(sel); if(!it){M.hidden=true;return;}
   var h='';
   if(it.type==='text') h+=['big','normal','code'].map(function(v,i){return '<button type="button" data-act="style" data-v="'+v+'" aria-pressed="'+(it.style===v)+'">'+[_T('大標題'),_T('一般'),_T('程式碼')][i]+'</button>';}).join('')+'<span class="sep2"></span>';
+  if(it.type==='text'&&it.style==='code') h+=codeLanguagePicker(it);
   if(it.type==='pointer') h+=[['up','↑'],['right','→'],['down','↓'],['left','←']].map(function(d){return '<button type="button" class="dirb" data-act="dir" data-v="'+d[0]+'" aria-pressed="'+((it.dir||'up')===d[0])+_T('" title="箭頭朝')+{up:_T('上'),right:_T('右'),down:_T('下'),left:_T('左')}[d[0]]+_T('（按 R 旋轉）">')+d[1]+'</button>';}).join('')+'<span class="sep2"></span>';
   if(it.type==='pointer') h+=COLORS.map(function(c,i){return '<button type="button" class="sw" style="background:'+c+'" data-act="color" data-v="'+i+_T('" aria-label="顏色 ')+(i+1)+'"></button>';}).join('')+'<span class="sep2"></span>';
   if(CELLY.indexOf(it.type)>=0||NODEY.indexOf(it.type)>=0){
@@ -711,7 +748,10 @@ function renderToolbar(){
 }
 function placeToolbar(){
   renderHandles();
-  var M=$('mt'); if(!M||M.hidden) return; var br=board.getBoundingClientRect(), x, y;
+  var M=$('mt'); if(!M) return;
+  M.classList.toggle('dragging',!!(drag&&drag.moved));
+  if(M.hidden||M.classList.contains('dragging')) return;
+  var br=board.getBoundingClientRect(), x, y;
   if(selEdge){var e=edgeById(selEdge); if(!e||e._mx==null){return;} x=view.x+e._mx*view.z; y=view.y+e._my*view.z-44;}
   else if(msel.length+mstk.length>1||(msel.length===0&&mstk.length)){var g=groupRect(); if(!g){M.hidden=true;return;} x=g.left-br.left; y=g.top-br.top-(resizable()?52:42);}
   else{var el=sel&&itemsEl.querySelector('[data-id="'+sel+'"]'); if(!el){M.hidden=true;return;} var r=el.getBoundingClientRect(); x=r.left-br.left; y=r.top-br.top-42;}
@@ -738,7 +778,7 @@ function renderHandles(){
 (function(){
   var H=$('hdl'), rs=null;
   H.addEventListener('pointerdown',function(e){
-    var hd=e.target.closest('.hd'); if(!hd) return; e.preventDefault(); e.stopPropagation();
+    var hd=e.target.closest('.hd'); if(!hd||e.button!==0) return; e.preventDefault(); e.stopPropagation();
     var i=mstk[0], st=B.strokes[i]; rs={i:i,h:hd.dataset.h,orig:clone(st.p),box:stBox(st)};
     window.addEventListener('pointermove',onMove); window.addEventListener('pointerup',end); window.addEventListener('pointercancel',end);
   });
@@ -989,8 +1029,19 @@ function nearCell(p){ // 最靠近指標箭頭那一端的格子
 
 /* ---------- 滑鼠：拖曳、選取、連線、畫筆 ---------- */
 var drag=null;
+function boardControl(target){return target.closest('.help,.modal,.dock,.navi');}
+board.addEventListener('contextmenu',function(e){if(!boardControl(e.target)&&!e.target.closest('.mt')) e.preventDefault();});
+$('mt').addEventListener('change',function(e){
+  var it=byId(sel);
+  if(e.target.id!=='codeLang'||!it||it.type!=='text'||it.style!=='code') return;
+  if(e.target.value) it.codeLanguage=e.target.value; else delete it.codeLanguage;
+  paintCode(itemsEl.querySelector('[data-id="'+it.id+'"] textarea'),it);
+  commit();
+});
 board.addEventListener('pointerdown',function(e){
-  if(e.target.closest('.help')||e.target.closest('.modal')||e.target.closest('.dock')||e.target.closest('.navi')) return;
+  if(boardControl(e.target)||e.isPrimary===false) return;
+  if(e.button===2){if(!e.target.closest('.mt')){e.preventDefault();startPan(e);}return;}
+  if(e.button!==0) return;
   var ab=e.target.closest('[data-act]');
   if(ab){e.preventDefault();e.stopPropagation();
     if(ab.closest('.it')&&sel!==ab.closest('.it').dataset.id){sel=ab.closest('.it').dataset.id;selEdge=null;}
@@ -998,7 +1049,7 @@ board.addEventListener('pointerdown',function(e){
   if(e.target.closest('.mt')) return;
   if(e.target.closest('.elabel')){var le=e.target.closest('.elabel');selEdge=le.dataset.e;sel=null;renderEdges();renderToolbar();return;}
   var itEl=e.target.closest('.it');
-  if(tool==='hand'||space||e.button===1){startPan(e);return;}
+  if(tool==='hand'||space){startPan(e);return;}
   if(tool==='pen'){startPen(e);return;}
   if(SHAPES.indexOf(tool)>=0){var w0=toWorld(e.clientX,e.clientY);shp={t:tool,a:[Math.round(w0.x),Math.round(w0.y)],b:[Math.round(w0.x),Math.round(w0.y)],c:penColor};
     shp.g=document.createElementNS('http://www.w3.org/2000/svg','g');tempLayer().appendChild(shp.g);board.setPointerCapture(e.pointerId);return;}
@@ -1054,7 +1105,7 @@ board.addEventListener('pointerdown',function(e){
   if(msel.length||mstk.length){clearMulti();itemsEl.querySelectorAll('.it.msel').forEach(function(x){x.classList.remove('msel');});renderStrokes();}
   if(!cell&&activeCell&&activeCell.id===it.id){activeCell=null;renderToolbar();}
   if(sel!==it.id){sel=it.id;activeCell=null;var hadEdge=selEdge;selEdge=null;itemsEl.querySelectorAll('.it.sel').forEach(function(x){x.classList.remove('sel');});itEl.classList.add('sel');if(hadEdge)renderEdges();renderToolbar();}
-  var isNode=!!e.target.closest('.node,.ptr'), onGrip=!!e.target.closest('.grip')&&!e.target.closest('.nm'), editable=e.target.closest('[contenteditable="true"]');
+  var isNode=!!e.target.closest('.node,.ptr'), onGrip=!!e.target.closest('.grip')&&!e.target.closest('.nm'), editable=e.target.closest('[contenteditable="true"],textarea');
   var bodyDrag=isNode&&!(editable&&document.activeElement===editable);
   if(it.type==='text'||it.type==='note'){ if(document.activeElement!==editable) bodyDrag=true; }
   if(!(onGrip||bodyDrag)) return; // 點格子就讓它編輯
@@ -1063,6 +1114,7 @@ board.addEventListener('pointerdown',function(e){
   board.setPointerCapture(e.pointerId);
 });
 board.addEventListener('pointermove',function(e){
+  if(e.isPrimary===false) return;
   mouseW=toWorld(e.clientX,e.clientY);
   if(shp){shapeEnd(e);drawShpPreview();return;}
   if(tool==='erase'){var er=$('eraser'),bb=board.getBoundingClientRect();er.style.left=(e.clientX-bb.left)+'px';er.style.top=(e.clientY-bb.top)+'px';}
@@ -1071,9 +1123,9 @@ board.addEventListener('pointermove',function(e){
     marq.rect={x:x,y:y,w:w,h:h}; marq.el.style.left=(x-marq.br.left)+'px'; marq.el.style.top=(y-marq.br.top)+'px'; marq.el.style.width=w+'px'; marq.el.style.height=h+'px'; return;}
   if(drag&&drag.group){var gx=Math.round((e.clientX-drag.sx)/view.z), gy=Math.round((e.clientY-drag.sy)/view.z);
     if(!drag.moved&&Math.hypot(gx,gy)<3) return;
-    if(!drag.moved&&(drag.alt||e.altKey)){ var dp=dupInPlace(packGroup()); msel=dp.ids; mstk=dp.stk; sel=null; renderAll();
+    var copyGroupOnMove=!drag.moved&&(drag.alt||e.altKey); drag.moved=true;
+    if(copyGroupOnMove){ var dp=dupInPlace(packGroup()); msel=dp.ids; mstk=dp.stk; sel=null; renderAll();
       drag.orig=dp.ids.map(function(i){var o=byId(i);return {id:i,x:o.x,y:o.y};}); drag.sorig=dp.stk.map(function(i){return {i:i,p:clone(B.strokes[i].p)};}); drag.copied=true; }
-    drag.moved=true;
     drag.orig.forEach(function(o){var it=byId(o.id);it.x=o.x+gx;it.y=o.y+gy;var el=itemsEl.querySelector('[data-id="'+o.id+'"]');if(el){el.style.left=it.x+'px';el.style.top=it.y+'px';}});
     drag.sorig.forEach(function(o){B.strokes[o.i].p=o.p.map(function(q){return [q[0]+gx,q[1]+gy];});});
     renderStrokes(); renderEdges(); placeToolbar(); return;}
@@ -1083,19 +1135,25 @@ board.addEventListener('pointermove',function(e){
   if(!drag) return;
   var dx=(e.clientX-drag.sx)/view.z, dy=(e.clientY-drag.sy)/view.z;
   if(!drag.moved&&Math.hypot(dx,dy)<3) return;
-  if(!drag.moved&&(drag.alt||e.altKey)){ var src=byId(drag.id), cp=clone(src); cp.id=nid(); cp.x=drag.ox; cp.y=drag.oy; delete cp._snap; delete cp.z; B.items.push(cp);
+  var copyOnMove=!drag.moved&&(drag.alt||e.altKey); drag.moved=true;
+  if(copyOnMove){ var src=byId(drag.id), cp=clone(src); cp.id=nid(); cp.x=drag.ox; cp.y=drag.oy; delete cp._snap; delete cp.z; B.items.push(cp);
     sel=cp.id; activeCell=null; renderAll(); drag.id=cp.id; drag.el=itemsEl.querySelector('[data-id="'+cp.id+'"]'); drag.copied=true; }
-  drag.moved=true; var it=byId(drag.id);
+  var it=byId(drag.id);
   var nx=Math.round(drag.ox+dx), ny=Math.round(drag.oy+dy), ddx=nx-it.x, ddy=ny-it.y;
   it.x=nx; it.y=ny; drag.el.style.left=it.x+'px'; drag.el.style.top=it.y+'px';
   renderEdges(); placeToolbar(); drawMini();
 });
-board.addEventListener('pointerup',function(e){
-  if(shp){shapeEnd(e);finishShape();return;}
+board.addEventListener('pointerup',endBoardGesture);
+board.addEventListener('pointercancel',endBoardGesture);
+function endBoardGesture(e){
+  if(e.isPrimary===false) return;
+  var cancelled=e.type==='pointercancel';
+  if(shp){if(!cancelled)shapeEnd(e);finishShape();return;}
   if(erasing){var hit=erasing.hit;erasing=null;board.classList.remove('erasing');if(hit)commit();return;}
   if(marq){finishMarquee();return;}
   if(drag&&drag.group){var g=drag;drag=null;
-    if(g.moved){commit();if(g.copied)toast(_T('已複製一份'));return;}
+    if(g.moved){placeToolbar();drawMini();commit();if(g.copied)toast(_T('已複製一份'));return;}
+    if(cancelled){placeToolbar();return;}
     // 沒拖動：當成點一下 → 只選這一個
     if(!g.id){renderAll();return;}
     clearMulti(); sel=g.id; renderAll();
@@ -1109,15 +1167,17 @@ board.addEventListener('pointerup',function(e){
   if(pen){var done=pen;pen=null;if(done.p.length>1)B.strokes.push({p:done.p,c:done.c});renderStrokes();commit();return;}
   if(!drag) return;
   var it=byId(drag.id), moved=drag.moved, del=drag.el, drag0copied=drag.copied; drag=null;
+  placeToolbar();
   if(!moved){
+    if(cancelled) return;
     var now=Date.now(), dbl=lastTap.id===it.id&&now-lastTap.t<400; lastTap={id:it.id,t:now};
     if(it.type==='text'||it.type==='note'){var ed=del.querySelector('[data-f="text"]');ed.focus();caretEnd(ed);return;}
     if(dbl){var ne=del.querySelector('.nv,.pn');if(ne){ne.contentEditable='true';ne.focus();selectAll(ne);}}
     return;
   }
-  if(moved&&it.type==='pointer'){delete it._snap; if(e.shiftKey){var c=nearCell(it);if(c){snapPointer(it,c);renderAll();}}}
-  if(moved){commit(); if(drag0copied) toast(_T('已複製一份'));}
-});
+  if(moved&&it.type==='pointer'){delete it._snap; if(!cancelled&&e.shiftKey){var c=nearCell(it);if(c){snapPointer(it,c);renderAll();}}}
+  commit(); if(drag0copied) toast(_T('已複製一份'));
+}
 board.addEventListener('dblclick',function(e){
   var nv=e.target.closest('.node');
   if(nv){var el=nv.querySelector('.nv');el.contentEditable='true';el.focus();selectAll(el);}
@@ -1142,7 +1202,7 @@ function eraseOne(x,y,r){
   if(B.strokes.length!==before){erasing.hit=true;mstk=[];renderStrokes();drawMini();}
 }
 var pan=null, pen=null, lastTap={id:null,t:0}, edgeTap={id:null,t:0};
-function caretEnd(el){var r=document.createRange();r.selectNodeContents(el);r.collapse(false);var s=getSelection();s.removeAllRanges();s.addRange(r);}
+function caretEnd(el){if(el.tagName==='TEXTAREA'){el.setSelectionRange(el.value.length,el.value.length);return;}var r=document.createRange();r.selectNodeContents(el);r.collapse(false);var s=getSelection();s.removeAllRanges();s.addRange(r);}
 function startPan(e){pan={sx:e.clientX,sy:e.clientY,vx:view.x,vy:view.y};board.classList.add('panning');board.setPointerCapture(e.pointerId);}
 function startPen(e){var p=toWorld(e.clientX,e.clientY);pen={p:[[Math.round(p.x),Math.round(p.y)]],c:penColor};board.setPointerCapture(e.pointerId);
   pen.el=document.createElementNS('http://www.w3.org/2000/svg','polyline');pen.el.setAttribute('class','stroke');pen.el.style.stroke=COLORS[penColor];pen.el.style.pointerEvents='none';
@@ -1168,10 +1228,11 @@ function finishShape(){
   setTool('select'); msel=[]; mstk=[B.strokes.length-1]; sel=null; selEdge=null; renderAll(); commit();
 }
 board.addEventListener('wheel',function(e){
-  if(e.target.closest('.modal')) return;
+  if(boardControl(e.target)||e.target.closest('.mt')) return;
+  var unit=e.deltaMode===1?16:e.deltaMode===2?board.clientHeight:1;
   e.preventDefault();
-  if(e.ctrlKey||e.metaKey){zoomAt(e.clientX,e.clientY,Math.exp(-e.deltaY*0.0022));}
-  else{view.x-=e.deltaX;view.y-=e.deltaY;applyView();}
+  if(!e.deltaY) return;
+  zoomAt(e.clientX,e.clientY,Math.exp(-e.deltaY*unit*0.0022));
   clearTimeout(board._t); board._t=setTimeout(persist,300);
 },{passive:false});
 function zoomAt(cx,cy,f){var r=board.getBoundingClientRect(),px=cx-r.left,py=cy-r.top,nz=Math.min(3,Math.max(0.25,view.z*f));
@@ -1182,9 +1243,13 @@ world.addEventListener('input',function(e){
   var t=e.target;
   if(t.classList.contains('elabel')){var ed=edgeById(t.dataset.e);if(ed)ed.label=t.innerText.replace(/\n/g,'');return;}
   var itEl=t.closest('.it'); if(!itEl) return; var it=byId(itEl.dataset.id); if(!it||t.dataset.slot) return;
-  var v=t.innerText.replace(/\n$/,'');
+  // Native textarea paste inserts only plain text and preserves indentation.
+  var v=t.tagName==='TEXTAREA'?t.value:t.innerText.replace(/\n$/,'');
   if(t.dataset.f==='name') it.name=v.replace(/\n/g,'');
-  else if(t.dataset.f==='text') it.text=v;
+  else if(t.dataset.f==='text'){
+    it.text=v;
+    if(t.tagName==='TEXTAREA') paintCode(t,it);
+  }
   else if(t.dataset.f==='value') it.value=v.replace(/\n/g,'');
   else if(t.dataset.f==='val') it.val=v.replace(/\n/g,'');
   else if(t.dataset.f==='rl') it.rowLabel=v.replace(/\n/g,'');
@@ -1360,7 +1425,7 @@ function paintMini(){
   var c=$('mini'), dragging=false;
   function go(e){if(!miniT)return;var q=c.getBoundingClientRect(),wx=(e.clientX-q.left-miniT.ox)/miniT.sc,wy=(e.clientY-q.top-miniT.oy)/miniT.sc,r=board.getBoundingClientRect();
     view.x=r.width/2-wx*view.z; view.y=r.height/2-wy*view.z; world.style.transform='translate('+view.x+'px,'+view.y+'px) scale('+view.z+')'; placeToolbar(); drawMini();}
-  c.addEventListener('pointerdown',function(e){e.stopPropagation();e.preventDefault();dragging=true;c.setPointerCapture(e.pointerId);go(e);});
+  c.addEventListener('pointerdown',function(e){if(e.button!==0) return;e.stopPropagation();e.preventDefault();dragging=true;c.setPointerCapture(e.pointerId);go(e);});
   c.addEventListener('pointermove',function(e){if(dragging)go(e);});
   c.addEventListener('pointerup',function(){dragging=false;persist();});
   window.addEventListener('resize',drawMini);

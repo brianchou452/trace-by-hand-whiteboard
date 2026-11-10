@@ -1,6 +1,7 @@
 """Build public/index.html from src/canvas_src.html.
 
 - Embeds the LeetCode problem list (data/problems.csv) into /*PROBLEMS*/[]
+- Embeds the vendored Highlight.js browser bundle into /*HIGHLIGHT_JS*/
 - Embeds UI translations (i18n/<lang>.json, keys = Traditional Chinese source strings) into /*I18N*/{}
 
 Usage: python3 build.py
@@ -29,6 +30,12 @@ for lang in LANGS:
         print(f'[{lang}] missing {len(missing)} keys, e.g. {missing[:3]}')
     i18n[lang] = {k: v for k, v in d.items() if k in keys and v}
 page = page.replace('/*I18N*/{}', json.dumps(i18n, ensure_ascii=False, separators=(',', ':')))
+
+with open(os.path.join(HERE, 'src', 'vendor', 'highlight-11.11.1.min.js'), encoding='utf-8') as f:
+    highlighter = f.read()
+with open(os.path.join(HERE, 'src', 'vendor', 'highlight-LICENSE'), encoding='utf-8') as f:
+    license_text = f.read()
+page = page.replace('/*HIGHLIGHT_JS*/', '/*!\n' + license_text + '*/\n' + highlighter)
 
 body = page.replace('<meta charset="utf-8">\n', '')
 cut = body.index('</style>') + len('</style>')
