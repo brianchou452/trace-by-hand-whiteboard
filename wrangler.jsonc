@@ -1,7 +1,14 @@
 {
   // Static site on Cloudflare Workers (Static Assets). Deploy: npx wrangler deploy
-  "name": "draw-prod-stack",
+  "name": "coding-practice",
   "compatibility_date": "2026-10-01",
-  "assets": { "directory": "./public" },
-  "routes": [{ "pattern": "draw.prod-stack.com", "custom_domain": true }]
+  "assets": {
+    "directory": "./public"
+  },
+  "routes": [
+    {
+      "pattern": "coding-practice.seaotter.cc",
+      "custom_domain": true
+    }
+  ]
 }
