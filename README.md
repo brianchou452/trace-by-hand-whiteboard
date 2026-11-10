@@ -12,6 +12,7 @@ A digital whiteboard for tracing algorithm problems by hand — drag in arrays, 
 - Drawing tools: pen, eraser, rectangle, circle, line, arrow, connectors
 - Multi-select, copy/paste, layers, undo/redo, minimap, zoom
 - "My boards": open a board for any LeetCode problem by number or title (3,000+ problems built in)
+- Problem review: weekly Grind 75 plans, prior-practice inventory, adaptive review, and portable JSON backups
 - Export / import as JSON; everything is saved in your browser (localStorage) — nothing is sent to a server
 - 7 languages: 繁體中文, 简体中文, English, 日本語, 한국어, Français, हिन्दी (auto-detected; switch in the top-left, or use `?lang=en`)
 
@@ -19,25 +20,29 @@ A digital whiteboard for tracing algorithm problems by hand — drag in arrays, 
 
 ```
 src/canvas_src.html   # the app (single file: HTML + CSS + JS)
+src/review_*          # review page, interface, and scheduling model
 i18n/                 # UI translations; keys are the Traditional Chinese source strings
 data/problems.csv     # LeetCode problem list (id, title, slug, difficulty)
-build.py              # builds public/index.html (embeds problems + translations)
-public/index.html     # built, self-contained page
+data/review_lists.json # dated Grind 75 and LeetCode list snapshots
+build.py              # builds both self-contained pages
+public/               # built whiteboard and review pages
 wrangler.jsonc        # Cloudflare Workers static-assets deploy config
 ```
 
 ## Build & deploy
 
 ```bash
-python3 build.py          # -> public/index.html
+python3 build.py          # -> public/index.html and public/review.html
 npx wrangler deploy       # deploy to Cloudflare (needs your own account / domain)
 ```
 
-Opening `public/index.html` directly in a browser also works.
+Serve `public/` on one origin to use both pages with browser storage. The whiteboard also opens directly from `public/index.html`.
 
 ## Adding UI text
 
 Wrap any new user-facing string in `_T('…')` in `src/canvas_src.html`, add the same key to `i18n/source_zh-TW.json`, and add translations to each `i18n/<lang>.json`.
+
+For the review page, use `t('繁體中文', 'English')` in `src/review_app.js` and add the other languages to `i18n/review.json`.
 
 ---
 

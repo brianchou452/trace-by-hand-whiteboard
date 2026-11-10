@@ -305,6 +305,7 @@ table.grid .ax{display:inline-block;min-width:12px;padding:0 2px;border-radius:3
     <div class="phead">
       <button class="boardbtn" id="boardBtn" type="button" title="白板選單：切換、新增、匯出、清空">白板</button>
       <label class="langrow"><span class="sr">語言 / Language</span><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/></svg><select id="langSel" class="langsel" aria-label="Language"></select></label>
+      <a class="lclink" id="reviewLink" href="review.html">題目複習</a>
       <a class="lclink" id="lcLink" href="#" target="_blank" rel="noopener" hidden>在 LeetCode 看題目 ↗</a>
     </div>
     <div class="pbody" id="tab-comp">
@@ -1443,6 +1444,7 @@ function findProblem(q){
 function renderBoardBtn(){
   var m=boardMeta(curBoard); $('boardBtn').textContent=(m?m.name:_T('白板'))+'  ▾';
   var a=$('lcLink'); if(m&&m.slug){a.href='https://leetcode.com/problems/'+m.slug+'/';a.hidden=false;} else a.hidden=true;
+  $('reviewLink').href='review.html?lang='+LANG+(m&&m.pid?'&problem='+encodeURIComponent(m.pid):'');
   document.title=m?m.name:_T('白板');
 }
 function openBoard(id){
