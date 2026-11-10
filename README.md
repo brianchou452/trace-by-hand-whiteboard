@@ -4,7 +4,7 @@ A digital whiteboard for tracing algorithm problems by hand — drag in arrays, 
 
 一個「寫 code 之前先手動跑一遍」用的數位白板：把陣列、指標、堆疊、佇列、字典、集合、樹、串列、圖、表格拉到畫布上，一步一步把題目跑一遍。
 
-**Live:** https://draw.prod-stack.com
+**Live:** <https://coding-practice.seaotter.cc/>
 
 ## Features
 
