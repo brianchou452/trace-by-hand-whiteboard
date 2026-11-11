@@ -236,6 +236,7 @@ id,title,slug,difficulty
 282,Expression Add Operators,expression-add-operators,Hard
 283,Move Zeroes,move-zeroes,Easy
 284,Peeking Iterator,peeking-iterator,Medium
+285,Inorder Successor in BST,inorder-successor-in-bst,Medium
 286,Walls and Gates,walls-and-gates,Medium
 287,Find the Duplicate Number,find-the-duplicate-number,Medium
 289,Game of Life,game-of-life,Medium
@@ -286,6 +287,7 @@ id,title,slug,difficulty
 354,Russian Doll Envelopes,russian-doll-envelopes,Hard
 355,Design Twitter,design-twitter,Medium
 357,Count Numbers with Unique Digits,count-numbers-with-unique-digits,Medium
+362,Design Hit Counter,design-hit-counter,Medium
 363,Max Sum of Rectangle No Larger Than K,max-sum-of-rectangle-no-larger-than-k,Hard
 365,Water and Jug Problem,water-and-jug-problem,Medium
 367,Valid Perfect Square,valid-perfect-square,Easy
@@ -459,6 +461,7 @@ id,title,slug,difficulty
 581,Shortest Unsorted Continuous Subarray,shortest-unsorted-continuous-subarray,Medium
 583,Delete Operation for Two Strings,delete-operation-for-two-strings,Medium
 587,Erect the Fence,erect-the-fence,Hard
+588,Design In-Memory File System,design-in-memory-file-system,Hard
 589,N-ary Tree Preorder Traversal,n-ary-tree-preorder-traversal,Easy
 590,N-ary Tree Postorder Traversal,n-ary-tree-postorder-traversal,Easy
 591,Tag Validator,tag-validator,Hard
@@ -582,6 +585,7 @@ id,title,slug,difficulty
 754,Reach a Number,reach-a-number,Medium
 756,Pyramid Transition Matrix,pyramid-transition-matrix,Medium
 757,Set Intersection Size At Least Two,set-intersection-size-at-least-two,Hard
+759,Employee Free Time,employee-free-time,Hard
 761,Special Binary String,special-binary-string,Hard
 762,Prime Number of Set Bits in Binary Representation,prime-number-of-set-bits-in-binary-representation,Easy
 763,Partition Labels,partition-labels,Medium
@@ -907,6 +911,7 @@ id,title,slug,difficulty
 1138,Alphabet Board Path,alphabet-board-path,Medium
 1139,Largest 1-Bordered Square,largest-1-bordered-square,Medium
 1140,Stone Game II,stone-game-ii,Medium
+1142,Minimum Knight Moves,minimum-knight-moves,Medium
 1143,Longest Common Subsequence,longest-common-subsequence,Medium
 1144,Decrease Elements To Make Array Zigzag,decrease-elements-to-make-array-zigzag,Medium
 1145,Binary Tree Coloring Game,binary-tree-coloring-game,Medium
@@ -1336,6 +1341,7 @@ id,title,slug,difficulty
 1726,Tuple with Same Product,tuple-with-same-product,Medium
 1727,Largest Submatrix With Rearrangements,largest-submatrix-with-rearrangements,Medium
 1728,Cat and Mouse II,cat-and-mouse-ii,Hard
+1730,Shortest Path to Get Food,shortest-path-to-get-food,Medium
 1732,Find the Highest Altitude,find-the-highest-altitude,Easy
 1733,Minimum Number of People to Teach,minimum-number-of-people-to-teach,Medium
 1734,Decode XORed Permutation,decode-xored-permutation,Medium

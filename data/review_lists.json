@@ -3,306 +3,175 @@
   "grind": {
     "url": "https://www.techinterviewhandbook.org/grind75/",
     "problems": [
-      [
-        "two-sum",
-        15
-      ],
-      [
-        "valid-parentheses",
-        20
-      ],
-      [
-        "merge-two-sorted-lists",
-        20
-      ],
-      [
-        "best-time-to-buy-and-sell-stock",
-        20
-      ],
-      [
-        "valid-palindrome",
-        15
-      ],
-      [
-        "invert-binary-tree",
-        15
-      ],
-      [
-        "valid-anagram",
-        15
-      ],
-      [
-        "binary-search",
-        15
-      ],
-      [
-        "flood-fill",
-        20
-      ],
-      [
-        "lowest-common-ancestor-of-a-binary-search-tree",
-        20
-      ],
-      [
-        "balanced-binary-tree",
-        15
-      ],
-      [
-        "linked-list-cycle",
-        20
-      ],
-      [
-        "implement-queue-using-stacks",
-        20
-      ],
-      [
-        "first-bad-version",
-        20
-      ],
-      [
-        "ransom-note",
-        15
-      ],
-      [
-        "climbing-stairs",
-        20
-      ],
-      [
-        "longest-palindrome",
-        20
-      ],
-      [
-        "reverse-linked-list",
-        20
-      ],
-      [
-        "majority-element",
-        20
-      ],
-      [
-        "add-binary",
-        15
-      ],
-      [
-        "diameter-of-binary-tree",
-        30
-      ],
-      [
-        "middle-of-the-linked-list",
-        20
-      ],
-      [
-        "maximum-depth-of-binary-tree",
-        15
-      ],
-      [
-        "contains-duplicate",
-        15
-      ],
-      [
-        "maximum-subarray",
-        20
-      ],
-      [
-        "insert-interval",
-        25
-      ],
-      [
-        "01-matrix",
-        30
-      ],
-      [
-        "k-closest-points-to-origin",
-        30
-      ],
-      [
-        "longest-substring-without-repeating-characters",
-        30
-      ],
-      [
-        "3sum",
-        30
-      ],
-      [
-        "binary-tree-level-order-traversal",
-        20
-      ],
-      [
-        "clone-graph",
-        25
-      ],
-      [
-        "evaluate-reverse-polish-notation",
-        30
-      ],
-      [
-        "course-schedule",
-        30
-      ],
-      [
-        "implement-trie-prefix-tree",
-        35
-      ],
-      [
-        "coin-change",
-        25
-      ],
-      [
-        "product-of-array-except-self",
-        30
-      ],
-      [
-        "min-stack",
-        20
-      ],
-      [
-        "validate-binary-search-tree",
-        20
-      ],
-      [
-        "number-of-islands",
-        25
-      ],
-      [
-        "rotting-oranges",
-        30
-      ],
-      [
-        "search-in-rotated-sorted-array",
-        30
-      ],
-      [
-        "combination-sum",
-        30
-      ],
-      [
-        "permutations",
-        30
-      ],
-      [
-        "merge-intervals",
-        30
-      ],
-      [
-        "lowest-common-ancestor-of-a-binary-tree",
-        25
-      ],
-      [
-        "time-based-key-value-store",
-        35
-      ],
-      [
-        "accounts-merge",
-        30
-      ],
-      [
-        "sort-colors",
-        25
-      ],
-      [
-        "word-break",
-        30
-      ],
-      [
-        "partition-equal-subset-sum",
-        30
-      ],
-      [
-        "string-to-integer-atoi",
-        25
-      ],
-      [
-        "spiral-matrix",
-        25
-      ],
-      [
-        "subsets",
-        30
-      ],
-      [
-        "binary-tree-right-side-view",
-        20
-      ],
-      [
-        "longest-palindromic-substring",
-        25
-      ],
-      [
-        "unique-paths",
-        20
-      ],
-      [
-        "construct-binary-tree-from-preorder-and-inorder-traversal",
-        25
-      ],
-      [
-        "container-with-most-water",
-        35
-      ],
-      [
-        "letter-combinations-of-a-phone-number",
-        30
-      ],
-      [
-        "word-search",
-        30
-      ],
-      [
-        "find-all-anagrams-in-a-string",
-        30
-      ],
-      [
-        "minimum-height-trees",
-        30
-      ],
-      [
-        "task-scheduler",
-        35
-      ],
-      [
-        "lru-cache",
-        30
-      ],
-      [
-        "kth-smallest-element-in-a-bst",
-        25
-      ],
-      [
-        "minimum-window-substring",
-        30
-      ],
-      [
-        "serialize-and-deserialize-binary-tree",
-        40
-      ],
-      [
-        "trapping-rain-water",
-        35
-      ],
-      [
-        "find-median-from-data-stream",
-        30
-      ],
-      [
-        "word-ladder",
-        45
-      ],
-      [
-        "basic-calculator",
-        40
-      ],
-      [
-        "maximum-profit-in-job-scheduling",
-        45
-      ],
-      [
-        "merge-k-sorted-lists",
-        30
-      ],
-      [
-        "largest-rectangle-in-histogram",
-        35
-      ]
+      ["two-sum", 15, "Easy", 0, "array"],
+      ["valid-parentheses", 20, "Easy", 0, "stack"],
+      ["merge-two-sorted-lists", 20, "Easy", 0, "linked-list"],
+      ["best-time-to-buy-and-sell-stock", 20, "Easy", 0, "array"],
+      ["valid-palindrome", 15, "Easy", 0, "string"],
+      ["invert-binary-tree", 15, "Easy", 0, "binary-tree"],
+      ["valid-anagram", 15, "Easy", 0, "string"],
+      ["binary-search", 15, "Easy", 0, "binary-search"],
+      ["flood-fill", 20, "Easy", 0, "graph"],
+      ["maximum-subarray", 20, "Medium", 0, "dynamic-programming"],
+      ["lowest-common-ancestor-of-a-binary-search-tree", 20, "Easy", 0, "binary-search-tree"],
+      ["insert-interval", 25, "Medium", 0, "array"],
+      ["01-matrix", 30, "Medium", 0, "graph"],
+      ["k-closest-points-to-origin", 30, "Medium", 0, "heap"],
+      ["balanced-binary-tree", 15, "Easy", 1, "binary-tree"],
+      ["linked-list-cycle", 20, "Easy", 1, "linked-list"],
+      ["implement-queue-using-stacks", 20, "Easy", 1, "stack"],
+      ["first-bad-version", 20, "Easy", 1, "binary-search"],
+      ["ransom-note", 15, "Easy", 1, "hash-table"],
+      ["longest-substring-without-repeating-characters", 30, "Medium", 1, "string"],
+      ["3sum", 30, "Medium", 1, "array"],
+      ["binary-tree-level-order-traversal", 20, "Medium", 1, "binary-tree"],
+      ["clone-graph", 25, "Medium", 1, "graph"],
+      ["evaluate-reverse-polish-notation", 30, "Medium", 1, "stack"],
+      ["course-schedule", 30, "Medium", 1, "graph"],
+      ["implement-trie-prefix-tree", 35, "Medium", 1, "trie"],
+      ["coin-change", 25, "Medium", 1, "dynamic-programming"],
+      ["product-of-array-except-self", 30, "Medium", 1, "array"],
+      ["climbing-stairs", 20, "Easy", 2, "dynamic-programming"],
+      ["longest-palindrome", 20, "Easy", 2, "string"],
+      ["min-stack", 20, "Medium", 2, "stack"],
+      ["reverse-linked-list", 20, "Easy", 2, "linked-list"],
+      ["validate-binary-search-tree", 20, "Medium", 2, "binary-search-tree"],
+      ["number-of-islands", 25, "Medium", 2, "graph"],
+      ["rotting-oranges", 30, "Medium", 2, "graph"],
+      ["search-in-rotated-sorted-array", 30, "Medium", 2, "binary-search"],
+      ["combination-sum", 30, "Medium", 2, "array"],
+      ["permutations", 30, "Medium", 2, "recursion"],
+      ["merge-intervals", 30, "Medium", 2, "array"],
+      ["lowest-common-ancestor-of-a-binary-tree", 25, "Medium", 2, "binary-tree"],
+      ["time-based-key-value-store", 35, "Medium", 2, "binary-search"],
+      ["minimum-window-substring", 30, "Hard", 2, "string"],
+      ["serialize-and-deserialize-binary-tree", 40, "Hard", 2, "binary-tree"],
+      ["trapping-rain-water", 35, "Hard", 2, "stack"],
+      ["find-median-from-data-stream", 30, "Hard", 2, "heap"],
+      ["majority-element", 20, "Easy", 3, "array"],
+      ["add-binary", 15, "Easy", 3, "binary"],
+      ["diameter-of-binary-tree", 30, "Easy", 3, "binary-tree"],
+      ["middle-of-the-linked-list", 20, "Easy", 3, "linked-list"],
+      ["accounts-merge", 30, "Medium", 3, "graph"],
+      ["sort-colors", 25, "Medium", 3, "array"],
+      ["word-break", 30, "Medium", 3, "trie"],
+      ["partition-equal-subset-sum", 30, "Medium", 3, "dynamic-programming"],
+      ["string-to-integer-atoi", 25, "Medium", 3, "string"],
+      ["spiral-matrix", 25, "Medium", 3, "matrix"],
+      ["subsets", 30, "Medium", 3, "recursion"],
+      ["binary-tree-right-side-view", 20, "Medium", 3, "binary-tree"],
+      ["longest-palindromic-substring", 25, "Medium", 3, "string"],
+      ["word-ladder", 45, "Hard", 3, "graph"],
+      ["basic-calculator", 40, "Hard", 3, "stack"],
+      ["maximum-profit-in-job-scheduling", 45, "Hard", 3, "binary-search"],
+      ["merge-k-sorted-lists", 30, "Hard", 3, "heap"],
+      ["largest-rectangle-in-histogram", 35, "Hard", 3, "stack"],
+      ["maximum-depth-of-binary-tree", 15, "Easy", 4, "binary-tree"],
+      ["contains-duplicate", 15, "Easy", 4, "array"],
+      ["unique-paths", 20, "Medium", 4, "dynamic-programming"],
+      ["construct-binary-tree-from-preorder-and-inorder-traversal", 25, "Medium", 4, "binary-tree"],
+      ["container-with-most-water", 35, "Medium", 4, "array"],
+      ["letter-combinations-of-a-phone-number", 30, "Medium", 4, "recursion"],
+      ["word-search", 30, "Medium", 4, "graph"],
+      ["find-all-anagrams-in-a-string", 30, "Medium", 4, "string"],
+      ["minimum-height-trees", 30, "Medium", 4, "graph"],
+      ["task-scheduler", 35, "Medium", 4, "heap"],
+      ["lru-cache", 30, "Medium", 4, "linked-list"],
+      ["kth-smallest-element-in-a-bst", 25, "Medium", 4, "binary-search-tree"],
+      ["daily-temperatures", 30, "Medium", 4, "stack"],
+      ["house-robber", 25, "Medium", 4, "dynamic-programming"],
+      ["meeting-rooms", 20, "Easy", 5, "array"],
+      ["roman-to-integer", 20, "Easy", 5, "math"],
+      ["backspace-string-compare", 15, "Easy", 5, "stack"],
+      ["gas-station", 30, "Medium", 5, "array"],
+      ["next-permutation", 30, "Medium", 5, "recursion"],
+      ["valid-sudoku", 35, "Medium", 5, "matrix"],
+      ["group-anagrams", 25, "Medium", 5, "string"],
+      ["maximum-product-subarray", 30, "Medium", 5, "dynamic-programming"],
+      ["design-add-and-search-words-data-structure", 35, "Medium", 5, "trie"],
+      ["pacific-atlantic-water-flow", 30, "Medium", 5, "graph"],
+      ["remove-nth-node-from-end-of-list", 20, "Medium", 5, "linked-list"],
+      ["shortest-path-to-get-food", 30, "Medium", 5, "graph"],
+      ["find-the-duplicate-number", 20, "Medium", 5, "binary"],
+      ["top-k-frequent-words", 30, "Medium", 5, "heap"],
+      ["binary-tree-maximum-path-sum", 35, "Hard", 5, "binary-tree"],
+      ["maximum-frequency-stack", 40, "Hard", 5, "stack"],
+      ["counting-bits", 15, "Easy", 6, "binary"],
+      ["longest-increasing-subsequence", 30, "Medium", 6, "dynamic-programming"],
+      ["graph-valid-tree", 30, "Medium", 6, "graph"],
+      ["course-schedule-ii", 35, "Medium", 6, "graph"],
+      ["swap-nodes-in-pairs", 25, "Medium", 6, "linked-list"],
+      ["path-sum-ii", 25, "Medium", 6, "binary-tree"],
+      ["longest-consecutive-sequence", 30, "Medium", 6, "array"],
+      ["rotate-array", 25, "Medium", 6, "array"],
+      ["odd-even-linked-list", 25, "Medium", 6, "linked-list"],
+      ["decode-string", 30, "Medium", 6, "stack"],
+      ["contiguous-array", 30, "Medium", 6, "array"],
+      ["maximum-width-of-binary-tree", 20, "Medium", 6, "binary-tree"],
+      ["find-k-closest-elements", 30, "Medium", 6, "heap"],
+      ["longest-repeating-character-replacement", 30, "Medium", 6, "string"],
+      ["median-of-two-sorted-arrays", 40, "Hard", 6, "binary-search"],
+      ["same-tree", 20, "Easy", 7, "binary-tree"],
+      ["number-of-1-bits", 15, "Easy", 7, "binary"],
+      ["longest-common-prefix", 20, "Easy", 7, "string"],
+      ["inorder-successor-in-bst", 30, "Medium", 7, "binary-search-tree"],
+      ["jump-game", 20, "Medium", 7, "dynamic-programming"],
+      ["add-two-numbers", 25, "Medium", 7, "linked-list"],
+      ["generate-parentheses", 25, "Medium", 7, "recursion"],
+      ["sort-list", 25, "Medium", 7, "linked-list"],
+      ["number-of-connected-components-in-an-undirected-graph", 30, "Medium", 7, "graph"],
+      ["minimum-knight-moves", 35, "Medium", 7, "graph"],
+      ["subarray-sum-equals-k", 35, "Medium", 7, "array"],
+      ["asteroid-collision", 30, "Medium", 7, "stack"],
+      ["random-pick-with-weight", 25, "Medium", 7, "math"],
+      ["kth-largest-element-in-an-array", 30, "Medium", 7, "heap"],
+      ["longest-increasing-path-in-a-matrix", 40, "Hard", 7, "graph"],
+      ["longest-valid-parentheses", 35, "Hard", 7, "stack"],
+      ["design-in-memory-file-system", 40, "Hard", 7, "trie"],
+      ["employee-free-time", 35, "Hard", 7, "array"],
+      ["single-number", 15, "Easy", 8, "binary"],
+      ["palindrome-linked-list", 20, "Easy", 8, "linked-list"],
+      ["move-zeroes", 20, "Easy", 8, "array"],
+      ["maximal-square", 30, "Medium", 8, "dynamic-programming"],
+      ["rotate-image", 25, "Medium", 8, "matrix"],
+      ["binary-tree-zigzag-level-order-traversal", 25, "Medium", 8, "binary-tree"],
+      ["design-hit-counter", 30, "Medium", 8, "queue"],
+      ["path-sum-iii", 35, "Medium", 8, "binary-tree"],
+      ["powx-n", 20, "Medium", 8, "math"],
+      ["search-a-2d-matrix", 30, "Medium", 8, "binary-search"],
+      ["largest-number", 20, "Medium", 8, "string"],
+      ["word-search-ii", 40, "Hard", 8, "graph"],
+      ["alien-dictionary", 45, "Hard", 8, "graph"],
+      ["bus-routes", 45, "Hard", 8, "graph"],
+      ["symmetric-tree", 20, "Easy", 9, "binary-tree"],
+      ["missing-number", 15, "Easy", 9, "binary"],
+      ["decode-ways", 25, "Medium", 9, "dynamic-programming"],
+      ["meeting-rooms-ii", 30, "Medium", 9, "array"],
+      ["reverse-integer", 25, "Medium", 9, "math"],
+      ["set-matrix-zeroes", 25, "Medium", 9, "matrix"],
+      ["reorder-list", 25, "Medium", 9, "linked-list"],
+      ["encode-and-decode-strings", 25, "Medium", 9, "string"],
+      ["cheapest-flights-within-k-stops", 45, "Medium", 9, "graph"],
+      ["all-nodes-distance-k-in-binary-tree", 25, "Medium", 9, "binary-tree"],
+      ["sliding-window-maximum", 35, "Hard", 9, "array"],
+      ["palindrome-number", 15, "Easy", 10, "math"],
+      ["convert-sorted-array-to-binary-search-tree", 20, "Easy", 10, "binary-search-tree"],
+      ["reverse-bits", 15, "Easy", 10, "binary"],
+      ["subtree-of-another-tree", 20, "Easy", 10, "binary-tree"],
+      ["squares-of-a-sorted-array", 20, "Easy", 10, "array"],
+      ["3sum-closest", 30, "Medium", 10, "array"],
+      ["rotate-list", 25, "Medium", 10, "linked-list"],
+      ["find-minimum-in-rotated-sorted-array", 30, "Medium", 10, "binary-search"],
+      ["basic-calculator-ii", 30, "Medium", 10, "stack"],
+      ["combination-sum-iv", 35, "Medium", 10, "dynamic-programming"],
+      ["insert-delete-getrandom-o1", 20, "Medium", 10, "hash-table"],
+      ["non-overlapping-intervals", 20, "Medium", 10, "array"],
+      ["palindrome-pairs", 40, "Hard", 10, "string"],
+      ["reverse-nodes-in-k-group", 35, "Hard", 10, "linked-list"],
+      ["sudoku-solver", 40, "Hard", 10, "matrix"],
+      ["first-missing-positive", 35, "Hard", 10, "hash-table"],
+      ["n-queens", 40, "Hard", 10, "recursion"],
+      ["smallest-range-covering-elements-from-k-lists", 40, "Hard", 10, "heap"]
     ]
   },
   "labels": {

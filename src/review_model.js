@@ -18,30 +18,43 @@ const ReviewModel = (() => {
     return (Date.parse(end + 'T00:00:00Z') - Date.parse(start + 'T00:00:00Z')) / dayMs;
   }
 
-  function makePlan(settings, grind, records) {
-    const budget = Math.round(settings.hours * 60);
-    const weeks = Array.from({length: settings.weeks}, () => []);
-    const overflow = [];
-    let week = 0;
-    let remaining = budget;
-    for (const [id, minutes] of grind) {
-      if (records[id]) continue;
-      if (minutes > budget) {
-        overflow.push(id);
-        continue;
-      }
-      if (minutes > remaining) {
-        week++;
-        remaining = budget;
-      }
-      if (week >= weeks.length) {
-        overflow.push(id);
-        continue;
-      }
-      weeks[week].push(id);
-      remaining -= minutes;
+  const difficulties = ['Easy', 'Medium', 'Hard'];
+  const topicOrder = [
+    'array', 'string', 'matrix', 'binary-search', 'graph', 'binary-search-tree',
+    'binary-tree', 'hash-table', 'recursion', 'linked-list', 'stack', 'queue',
+    'heap', 'trie', 'dynamic-programming', 'binary', 'math',
+  ];
+  const orderings = new Map([
+    ['all_rounded', (a, b) => a.priority - b.priority],
+    ['difficulty', (a, b) => difficulties.indexOf(a.difficulty) - difficulties.indexOf(b.difficulty)],
+    ['topics', (a, b) => topicOrder.indexOf(a.topic) - topicOrder.indexOf(b.topic)],
+  ]);
+  const estimatedMinutes = minutes => 1.96 * minutes;
+
+  function makePlan(settings, grind) {
+    const weeklyBudget = settings.hours * 60;
+    let remaining = 60 * (settings.hours * settings.weeks);
+    const selected = [];
+    for (const problem of [...grind].sort(orderings.get('all_rounded'))) {
+      if (!settings.difficulties.includes(problem.difficulty)) continue;
+      remaining -= estimatedMinutes(problem.minutes);
+      if (remaining < 0) break;
+      selected.push(problem);
     }
-    return {...settings, assignments: weeks, overflow};
+
+    const assignments = selected.length ? [[]] : [];
+    let weekMinutes = 0;
+    for (const problem of selected.sort(orderings.get(settings.order))) {
+      const minutes = estimatedMinutes(problem.minutes);
+      // Once the last week is reached, it receives all remaining selected problems.
+      if (assignments.length < settings.weeks && weekMinutes + minutes > weeklyBudget) {
+        assignments.push([]);
+        weekMinutes = 0;
+      }
+      assignments.at(-1).push(problem.id);
+      weekMinutes += minutes;
+    }
+    return {...settings, assignments};
   }
 
   function emptyRecord() {
@@ -134,10 +147,16 @@ const ReviewModel = (() => {
       const plan = data.plan;
       check(object(plan) && date(plan.start) && plan.start <= '9998-12-31' && whole(plan.weeks, 1, 52) &&
         Number.isFinite(plan.hours) && plan.hours >= 0.25 && plan.hours <= 40 &&
-        Array.isArray(plan.assignments) && plan.assignments.length === plan.weeks &&
-        plan.assignments.every(week => Array.isArray(week) && week.every(id)) &&
-        Array.isArray(plan.overflow) && plan.overflow.every(id));
-      const planned = plan.assignments.flat().concat(plan.overflow);
+        Array.isArray(plan.assignments) && plan.assignments.every(week => Array.isArray(week) && week.every(id)));
+      if (plan.order === undefined) {
+        check(plan.assignments.length === plan.weeks && Array.isArray(plan.overflow) && plan.overflow.every(id));
+      } else {
+        check(orderings.has(plan.order) && Array.isArray(plan.difficulties) &&
+          plan.difficulties.every(value => difficulties.includes(value)) &&
+          new Set(plan.difficulties).size === plan.difficulties.length &&
+          plan.assignments.length <= plan.weeks);
+      }
+      const planned = plan.order === undefined ? plan.assignments.flat().concat(plan.overflow) : plan.assignments.flat();
       check(new Set(planned).size === planned.length);
     }
     const eventIds = new Set();
@@ -169,5 +188,6 @@ const ReviewModel = (() => {
     return data;
   }
 
-  return {today, plusDays, daysBetween, makePlan, emptyRecord, compare, schedule, markPrior, outcome, merge, validate};
+  return {today, plusDays, daysBetween, difficulties, estimatedMinutes, makePlan,
+    emptyRecord, compare, schedule, markPrior, outcome, merge, validate};
 })();

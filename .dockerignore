@@ -1,0 +1,15 @@
+**
+!Dockerfile.e2e
+!package.json
+!package-lock.json
+!build.py
+!playwright.config.js
+!data/
+!data/**
+!i18n/
+!i18n/**
+!src/
+!src/**
+!tests/
+!tests/e2e/
+!tests/e2e/**

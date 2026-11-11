@@ -52,8 +52,11 @@ print(f'{len(probs)} problems, {len(i18n)} translations, {round(len(html) / 1024
 
 review_lists = json.load(open(os.path.join(HERE, 'data', 'review_lists.json'), encoding='utf-8'))
 catalog_slugs = {row[2] for row in probs}
-grind_slugs = [slug for slug, minutes in review_lists['grind']['problems'] if minutes > 0]
-assert len(grind_slugs) == len(set(grind_slugs)) == 75
+grind = review_lists['grind']['problems']
+grind_slugs = [slug for slug, *_ in grind]
+assert len(grind_slugs) == 169
+assert all(minutes > 0 and difficulty in {'Easy', 'Medium', 'Hard'} and priority >= 0
+           for _, minutes, difficulty, priority, _ in grind)
 for slugs in [grind_slugs, *(entry['slugs'] for entry in review_lists['labels'].values())]:
     assert len(slugs) == len(set(slugs)) and set(slugs) <= catalog_slugs
 

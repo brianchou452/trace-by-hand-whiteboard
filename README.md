@@ -38,6 +38,17 @@ npx wrangler deploy       # deploy to Cloudflare (needs your own account / domai
 
 Serve `public/` on one origin to use both pages with browser storage. The whiteboard also opens directly from `public/index.html`.
 
+New study plans default to [Grind 75 with 9 weeks, 10 hours per week, Medium, and All Rounded](https://www.techinterviewhandbook.org/grind75/?hours=10&order=all_rounded&difficulty=Medium&weeks=9). The planner uses a local snapshot of the 169-question pool. Older plans are recalculated with their saved start date, weeks, and hours, using Medium and All Rounded. Existing practice records still count toward progress.
+
+## Playwright E2E in Docker
+
+```bash
+docker build -f Dockerfile.e2e -t trace-by-hand-whiteboard-e2e .
+docker run --rm --init --ipc=host --network=none trace-by-hand-whiteboard-e2e
+```
+
+The suite rebuilds the site and runs against a local HTTP server in Chromium, Firefox, and WebKit. The expected schedules in `tests/e2e/fixtures/grind75.json` come from the Grind 75 website as of 2026-11-11, so the tests can compare the full question order and weekly grouping without a live connection.
+
 ## Adding UI text
 
 Wrap any new user-facing string in `_T('…')` in `src/canvas_src.html`, add the same key to `i18n/source_zh-TW.json`, and add translations to each `i18n/<lang>.json`.

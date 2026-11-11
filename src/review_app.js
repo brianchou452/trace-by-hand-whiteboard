@@ -3,8 +3,9 @@
   const $ = id => document.getElementById(id);
   const catalog = new Map(catalogData.map(problem => [problem[0], problem]));
   const bySlug = new Map(catalogData.map(problem => [problem[2], problem]));
-  const grind = lists.grind.problems.map(([slug, minutes]) => [bySlug.get(slug)[0], minutes]);
-  const duration = new Map(grind);
+  const grind = lists.grind.problems.map(([slug, minutes, difficulty, priority, topic]) =>
+    ({id: bySlug.get(slug)[0], minutes, difficulty, priority, topic}));
+  const grindById = new Map(grind.map(problem => [problem.id, problem]));
   const sourceLabels = Object.entries(lists.labels).map(([key, list]) => ({key, ...list, members: new Set(list.slugs)}));
   const storageKey = 'drycanvas-review-v1';
   const query = new URLSearchParams(location.search);
@@ -19,6 +20,11 @@
   const lang = [query.get('lang'), storedLang, ...(navigator.languages || [navigator.language])]
     .map(normalizeLang).find(Boolean) || 'en';
   const t = (zh, en) => lang === 'zh-TW' ? zh : translations[lang]?.[zh] || en;
+  const grindOrderings = [
+    ['all_rounded', t('均衡排序', 'All Rounded')],
+    ['difficulty', t('依難度排序', 'Order by Difficulty')],
+    ['topics', t('依主題排序', 'Order by Topics')],
+  ];
   document.documentElement.lang = {'zh-TW': 'zh-Hant', 'zh-CN': 'zh-Hans'}[lang] || lang;
   document.title = t('題目複習', 'Problem review');
 
@@ -50,6 +56,7 @@
     $('notice').textContent = t('無法讀取複習資料。可匯入有效備份來還原。', 'Could not read review data. Import a valid backup to restore it.');
   }
   const defaultStart = M.today();
+  const grindDefaults = {start: defaultStart, weeks: 9, hours: 10, order: 'all_rounded', difficulties: ['Medium']};
   let tab = 'today';
   let filters = {text: '', status: '', source: ''};
 
@@ -120,7 +127,12 @@
   }
 
   function planFor(state) {
-    return state.plan ?? M.makePlan({start: defaultStart, weeks: 8, hours: 8}, grind, {});
+    const saved = state.plan;
+    if (saved?.order) return saved;
+    const settings = saved
+      ? {...grindDefaults, start: saved.start, weeks: saved.weeks, hours: saved.hours}
+      : grindDefaults;
+    return M.makePlan(settings, grind);
   }
 
   function tags(id, custom = true) {
@@ -155,8 +167,11 @@
     const assigned = (plan.assignments[week] || []).filter(id => !state.records[id]);
     const overdue = due.filter(([, item]) => item.due < date).length;
     const empty = t('目前沒有待辦。', 'Nothing due.');
-    const start = (id, meta) => row(id, [...meta, duration.get(id) + ' min'],
-      [button(t('開始練習', 'Start practice'), () => practice(id, true), true)]);
+    const start = (id, meta) => {
+      const problem = grindById.get(id);
+      return row(id, [...meta, problem ? problem.minutes + ' min' : null],
+        [button(t('開始練習', 'Start practice'), () => practice(id, true), true)]);
+    };
     const weekLabel = t('本週新題', 'New problems this week') +
       (week >= 0 && week < plan.weeks ? ' · ' + t('週次', 'Week') + ' ' + (week + 1) : '');
     return [
@@ -171,43 +186,53 @@
 
   function planSections(plan, preview = false) {
     const date = M.today();
+    if (!plan.assignments.length) return [paragraph(t('這組設定沒有排入題目。', 'No problems fit these settings.'))];
     return plan.assignments.map((ids, index) => {
       const start = M.plusDays(plan.start, index * 7);
       const done = ids.filter(id => {
         const record = state.records[id];
         return record && (record.baseline || M.schedule(record).verified);
       }).length;
-      const minutes = ids.reduce((total, id) => total + (duration.get(id) || 0), 0);
-      const group = el('details', {class: 'panel', open: !preview && start <= date && date <= M.plusDays(start, 6)},
+      const minutes = Math.ceil(ids.reduce((total, id) => total + M.estimatedMinutes(grindById.get(id)?.minutes ?? 0), 0));
+      const group = el('details', {class: 'panel', open: preview || (start <= date && date <= M.plusDays(start, 6))},
         el('summary', {}, t('週次', 'Week') + ' ' + (index + 1) + ' · ' + start + ' – ' + M.plusDays(start, 6)
           + ' · ' + minutes + ' min · ' + done + '/' + ids.length));
       for (const id of ids) {
         const tracked = state.records[id];
-        group.append(row(id, [duration.get(id) + ' min', tracked ? labels[M.schedule(tracked).status] : null],
+        const problem = grindById.get(id);
+        group.append(row(id, [problem?.difficulty, problem ? problem.minutes + ' min' : null,
+          tracked ? labels[M.schedule(tracked).status] : null],
           preview ? [] : [button(tracked ? t('詳情', 'Details') : t('開始練習', 'Start practice'),
             () => tracked ? detail(id) : practice(id, true))]));
       }
       return group;
-    }).concat(plan.overflow.some(id => !state.records[id]) ? [el('details', {class: 'panel'},
-      el('summary', {}, t('預算不足，未排入', 'Outside the time budget') + ' · ' + plan.overflow.filter(id => !state.records[id]).length),
-      ...plan.overflow.filter(id => !state.records[id]).map(id => row(id, [duration.get(id) + ' min'],
-        preview ? [] : [button(t('開始練習', 'Start practice'), () => practice(id, true))])))] : []);
+    });
   }
 
   function planView(plan) {
     const start = el('input', {type: 'date', min: '1000-01-01', max: '9998-12-31', required: true, value: plan.start});
     const weeks = el('input', {type: 'number', min: '1', max: '52', required: true, value: plan.weeks});
     const hours = el('input', {type: 'number', min: '0.25', max: '40', step: '0.25', required: true, value: plan.hours});
+    const orderLabel = t('排序', 'Order');
+    const order = select(grindOrderings, plan.order, orderLabel);
+    const difficulties = M.difficulties.map(value => el('input', {
+      type: 'checkbox', value, checked: plan.difficulties.includes(value),
+    }));
     const form = el('form', {onsubmit: event => {
       event.preventDefault();
-      const draft = M.makePlan({start: start.value, weeks: weeks.valueAsNumber, hours: hours.valueAsNumber}, grind, state.records);
+      const draft = M.makePlan({
+        start: start.value, weeks: weeks.valueAsNumber, hours: hours.valueAsNumber, order: order.value,
+        difficulties: difficulties.filter(input => input.checked).map(input => input.value),
+      }, grind);
       const error = errorLine();
       dialog(t('預覽新題計畫', 'Preview new plan'),
         actions(button(t('套用計畫', 'Apply plan'), () => {
           if (save({...state, plan: draft}, error, t('已儲存計畫。', 'Plan saved.'))) $('dialog').close();
         }, true)), error, ...planSections(draft, true));
     }}, el('div', {class: 'filters'}, field(t('起始日', 'Start date'), start), field(t('週數', 'Weeks'), weeks),
-      field(t('每週新題時數', 'New problem hours per week'), hours)),
+      field(t('每週時數', 'Hours per week'), hours), field(orderLabel, order)),
+    el('fieldset', {}, el('legend', {}, t('難度', 'Difficulty')),
+      actions(...difficulties.map(input => el('label', {}, input, ' ' + input.value)))),
     actions(submit(t('預覽變更', 'Preview changes')), button(t('盤點以前寫過的題目', 'Mark previously attempted problems'), inventory)));
     return [section('Grind 75', form), ...planSections(plan)];
   }
@@ -232,7 +257,7 @@
       const ids = [...catalog.keys()].filter(id => {
         const record = state.records[id];
         return (!status.value || (record ? M.schedule(record).status : 'new') === status.value) &&
-          (source.value !== 'grind' || duration.has(id)) &&
+          (source.value !== 'grind' || grindById.has(id)) &&
           (!list || list.members.has(catalog.get(id)[2])) && match(id, search.value);
       });
       ids.sort((a, b) => Number(!!state.records[b]) - Number(!!state.records[a]) || a - b);
@@ -302,7 +327,7 @@
     }
     function draw() {
       const rows = [];
-      for (const [id] of grind) {
+      for (const {id} of grind) {
         const record = state.records[id];
         const current = record ? M.schedule(record) : {status: 'new'};
         if ((status.value && status.value !== current.status) || !match(id, search.value)) continue;
@@ -324,15 +349,15 @@
     draw();
     dialog(t('盤點以前寫過的題目', 'Mark previously attempted problems'),
       el('div', {class: 'filters'}, search, status),
-      actions(button(weak, () => mark(grind.map(([id]) => id).filter(id => chosen.has(id)), 'weak')),
-        button(known, () => mark(grind.map(([id]) => id).filter(id => chosen.has(id)), 'known'), true)), count, error, results);
+      actions(button(weak, () => mark([...grindById.keys()].filter(id => chosen.has(id)), 'weak')),
+        button(known, () => mark([...grindById.keys()].filter(id => chosen.has(id)), 'known'), true)), count, error, results);
   }
 
   function picker(onPick, allowed = () => true) {
     const text = t('搜尋題號或題名', 'Search by number or title');
     const search = el('input', {type: 'search', placeholder: text, aria: {label: text}});
     const results = el('div');
-    const prioritized = [...duration.keys(), ...[...catalog.keys()].filter(id => !duration.has(id))];
+    const prioritized = [...grindById.keys(), ...[...catalog.keys()].filter(id => !grindById.has(id))];
     function draw() {
       const ids = prioritized.filter(id => allowed(id) && match(id, search.value)).slice(0, 10);
       results.replaceChildren(...ids.map(id => row(id, [], [button(t('選取', 'Select'), () => onPick(id))])));
